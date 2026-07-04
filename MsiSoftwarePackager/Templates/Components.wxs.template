@@ -1,0 +1,40 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+
+	<Fragment>
+
+		<ComponentGroup 
+			Id="{{ComponentGroupId}}"
+			Directory="INSTALLFOLDER">
+
+			<Files Include="{{PublishDirectory}}\**\*.*" />
+
+			<Component 
+				Id="ShortcutsAndEnvironmentComponent"
+				Guid="*">
+
+				{{StartMenuShortcut}}
+
+				{{DesktopShortcut}}
+
+				{{PathEnvironment}}
+
+				<RemoveFolder 
+					Id="RemoveProgramMenuDir"
+					Directory="ProgramMenuDir"
+					On="uninstall" />
+
+				<RegistryValue 
+					Root="HKCU"
+					Key="Software\{{Manufacturer}}\{{ProductName}}"
+					Name="Installed"
+					Type="integer"
+					Value="1"
+					KeyPath="yes" />
+
+			</Component>
+
+		</ComponentGroup>
+
+	</Fragment>
+
+</Wix>

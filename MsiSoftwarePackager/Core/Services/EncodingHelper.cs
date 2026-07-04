@@ -1,0 +1,37 @@
+/*
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                                                                                ║
+║                      ───────────────────────────────────                       ║
+║                        © Copyright PB-BZH Concept 2025                         ║
+║                      ───────────────────────────────────                       ║
+║                                                                                ║
+║                 contact : mailto:patrick.bourges@univ-brest.fr                 ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+╔════════════════════════════════════════════════════════════════════════════════╗
+║  Auteur : Patrick Bourges - PB-BZH Concept                                     ║
+║  Le 22/5/2026 - 21:33                                                          ║                                                          
+╟────────────────────────────────────────────────────────────────────────────────║
+║     Projet VS_Pro_2022 C# 7.3 : DeployConfigurator                             ║                                      
+╟────────────────────────────────────────────────────────────────────────────────║
+║     Version : 3.0.1                                                            ║
+╟────────────────────────────────────────────────────────────────────────────────║
+║                Visual Studio Professional 2026 - Insiders                      ║
+║                ──────────────────────────────────────────                      ║
+║  Langage     : C# 7.3                                                          ║
+║  Technologie : .Net Framework 4.8.1                                            ║
+║  Encodage    : utf-8 : Unicode - Pages de codes 1200                           ║
+╟────────────────────────────────────────────────────────────────────────────────║
+║  Nom de fichier : EncodingHelper.cs												     
+╚════════════════════════════════════════════════════════════════════════════════╝
+*/
+using System.Text;
+
+namespace MsiSoftwarePackager.Core.Services;
+
+public static class EncodingHelper {
+  public static readonly Encoding Utf8NoBom = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
+  public static readonly Encoding Utf8Bom = new UTF8Encoding(encoderShouldEmitUTF8Identifier: true);
+
+
+}

@@ -1,0 +1,19 @@
+<Project Sdk="WixToolset.Sdk/7.0.0">
+
+	<PropertyGroup>
+		<OutputType>Package</OutputType>
+		<Platform>{{Architecture}}</Platform>
+		<OutputName>{{ProductName}}</OutputName>
+		<OutputPath>{{MsiOutputDirectory}}</OutputPath>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference
+			Include="WixToolset.UI.wixext"
+			Version="7.0.0" />
+
+		<PackageReference
+		  Include="WixToolset.BootstrapperApplications.wixext"
+		  Version="7.0.0" />	</ItemGroup>
+
+</Project>

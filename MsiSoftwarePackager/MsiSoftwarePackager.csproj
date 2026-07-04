@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.17763.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>14.0</LangVersion>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationIcon>Ressources\Application.ico</ApplicationIcon>
+    <PackageIcon>Application.png</PackageIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Product>Msi Software Packager</Product>
+    <Company>PB BZH Concept</Company>
+    <Version>3.2.5</Version>
+    <AssemblyVersion>3.2.5.0</AssemblyVersion>
+    <FileVersion>3.2.5.0</FileVersion>
+    <InformationalVersion>3.2.5</InformationalVersion>
+    <Copyright>Copyright © 2026 PB BZH Concept</Copyright>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <Platforms>AnyCPU;x64</Platforms>
+    <NeutralLanguage>fr</NeutralLanguage>
+    <ProductId>MsiSoftwarePackager</ProductId>
+    <ProductFolder>MsiSoftwarePackager</ProductFolder>
+    <UpgradeCode>9359A612-5DAC-4194-AA39-870EE7BB8270</UpgradeCode>
+    <BundleUpgradeCode>D5D70885-F550-4BA8-AF94-062D0008B1E9</BundleUpgradeCode>
+    <WebBundleUPgradeCode>AFD5981A-1A95-4C55-AED5-64EB837666A1</WebBundleUPgradeCode>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="Ressources\Application.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Ne jamais compiler ce qui se trouve dans Templates -->
+    <Compile Remove="Templates\**\*.*" />
+    <!-- Ne pas traiter les templates comme ressources .resx ou ressources embarquées -->
+    <EmbeddedResource Remove="Templates\**\*.*" />
+    <!-- Évite les doublons avec les inclusions automatiques SDK-style -->
+    <None Remove="Templates\**\*.*" />
+    <Content Remove="Templates\**\*.*" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Assets\**\*.*" />
+    <EmbeddedResource Remove="Assets\**\*.*" />
+    <None Remove="Assets\**\*.*" />
+    <Content Remove="Assets\**\*.*" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\**\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Copier les templates dans le dossier de sortie -->
+    <Content Include="Templates\**\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Update="Templates\msi-software-packager.index.php.template" Link="Templates\Web\msi-software-packager.index.php.template" />
+    <Content Update="Templates\msi-software-packager.wixproj.template" Link="Templates\msi-software-packager.wixproj.template" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Ressources\Application.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="assets\" />
+    <Folder Include="Core\Profiles\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="PB.BZH.Help.Library">
+      <HintPath>..\..\PB.BZH.Help.Library\PB.BZH.Help.Library\bin\Release\net10.0-windows\PB.BZH.Help.Library.dll</HintPath>
+    </Reference>
+    <Reference Include="PB.BZH.Licensing">
+      <HintPath>..\..\PB.BZH.Licensing\PB.BZH.Licensing\bin\Release\net10.0-windows\PB.BZH.Licensing.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <PropertyGroup Condition="'$(TechnicalLicenseRequired)' == 'true'">
+    <DefineConstants>$(DefineConstants);TECHNICAL_LICENSE_REQUIRED</DefineConstants>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,330 @@
+<?php
+declare(strict_types=1);
+
+$category = $_GET['category'] ?? '';
+$product  = $_GET['product'] ?? '';
+
+function clean_segment(string $value): string
+{
+    $value = trim($value);
+
+    if ($value === '') {
+        return '';
+    }
+
+    if (!preg_match('/^[a-zA-Z0-9._-]+$/', $value)) {
+        return '';
+    }
+
+    return $value;
+}
+
+function h(string $value): string
+{
+    return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
+function friendly_name_from_slug(string $value): string
+{
+    $displayName = str_replace(['-', '_'], ' ', $value);
+    return ucwords($displayName);
+}
+
+function read_manifest(string $productDir): ?array
+{
+    $manifestPath = $productDir . DIRECTORY_SEPARATOR . 'update.json';
+
+    if (!is_file($manifestPath)) {
+        return null;
+    }
+
+    $json = file_get_contents($manifestPath);
+
+    if ($json === false || trim($json) === '') {
+        return null;
+    }
+
+    $manifest = json_decode($json, true);
+
+    return is_array($manifest)
+        ? $manifest
+        : null;
+}
+
+$category = clean_segment($category);
+$product  = clean_segment($product);
+
+if ($category === '' || $product === '') {
+    http_response_code(400);
+    echo 'Lien de téléchargement invalide.';
+    exit;
+}
+
+$rootDir = __DIR__;
+$productDir = $rootDir . DIRECTORY_SEPARATOR . $category . DIRECTORY_SEPARATOR . $product;
+
+if (!is_dir($productDir)) {
+    http_response_code(404);
+    echo 'Produit introuvable.';
+    exit;
+}
+
+$webSetupFiles = glob($productDir . DIRECTORY_SEPARATOR . '*WebSetup.exe');
+$setupFiles    = glob($productDir . DIRECTORY_SEPARATOR . '*Setup.exe');
+$msiFiles      = glob($productDir . DIRECTORY_SEPARATOR . '*.msi');
+$apkFiles = glob($productDir . DIRECTORY_SEPARATOR . '*.apk');
+
+$webSetupFile = null;
+
+if (count($webSetupFiles) > 0) {
+    $webSetupFile = basename($webSetupFiles[0]);
+} elseif (count($setupFiles) > 0) {
+    $webSetupFile = basename($setupFiles[0]);
+}
+
+$msiFile = count($msiFiles) > 0
+    ? basename($msiFiles[0])
+    : null;
+	
+$apkFile = count($apkFiles) > 0
+    ? basename($apkFiles[0])
+    : null;
+
+$baseUrl = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+
+$productUrl =
+    $baseUrl . '/'
+    . rawurlencode($category) . '/'
+    . rawurlencode($product);
+
+$webSetupUrl = $webSetupFile !== null
+    ? $productUrl . '/' . rawurlencode($webSetupFile)
+    : null;
+
+$msiUrl = $msiFile !== null
+    ? $productUrl . '/' . rawurlencode($msiFile)
+    : null;
+
+$apkUrl = $apkFile !== null
+    ? $productUrl . '/' . rawurlencode($apkFile)
+    : null;
+
+$manifest = read_manifest($productDir);
+
+$displayProduct = friendly_name_from_slug($product);
+
+if ($manifest !== null &&
+    isset($manifest['ProductName']) &&
+    is_string($manifest['ProductName']) &&
+    trim($manifest['ProductName']) !== '') {
+    $displayProduct = trim($manifest['ProductName']);
+}
+
+$displayCategory = friendly_name_from_slug($category);
+?>
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title><?= h($displayProduct) ?> - Téléchargement</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="icon" href="/softwares/assets/software-icon.png?v={{ASSET_VERSION}}" type="image/png">
+    <link rel="shortcut icon" href="/softwares/assets/software-icon.png?v={{ASSET_VERSION}}" type="image/png">
+    <link rel="apple-touch-icon" href="/softwares/assets/software-icon.png?v={{ASSET_VERSION}}">
+
+    <style>
+        body {
+            font-family: Segoe UI, Arial, sans-serif;
+            margin: 40px;
+            background: #f5f5f5;
+            color: #222;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+        header img {
+            width: 72px;
+            height: 72px;
+            border-radius: 12px;
+        }
+
+        h1 {
+            margin: 0;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-top: 6px;
+        }
+
+        .contact {
+            color: #555;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
+        .contact a {
+            color: #1f5f99;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .contact a:hover {
+            text-decoration: underline;
+        }
+
+        .download-card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 22px 26px;
+            margin-bottom: 14px;
+            max-width: 860px;
+        }
+
+        .download-card h2 {
+            margin: 0 0 14px 0;
+            font-size: 22px;
+        }
+
+        a.button {
+            display: inline-block;
+            text-decoration: none;
+            color: #fff;
+            background: #1f5f99;
+            padding: 10px 16px;
+            border-radius: 4px;
+            margin-right: 10px;
+            margin-bottom: 8px;
+        }
+
+        a.button:hover {
+            background: #17486f;
+        }
+
+        a.button.secondary {
+            background: #444;
+        }
+
+        a.button.secondary:hover {
+            background: #222;
+        }
+
+        .disabled {
+            display: inline-block;
+            color: #777;
+            background: #eee;
+            padding: 10px 16px;
+            border-radius: 4px;
+            margin-right: 10px;
+            margin-bottom: 8px;
+        }
+
+        .details {
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .back {
+            margin-top: 25px;
+        }
+
+        .back a {
+            color: #1f5f99;
+            text-decoration: none;
+        }
+
+        .back a:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            margin-top: 34px;
+            padding-top: 18px;
+            border-top: 1px solid #ddd;
+            color: #666;
+            max-width: 860px;
+            font-size: 14px;
+        }
+
+        footer p {
+            margin: 6px 0;
+        }
+
+        footer a {
+            color: #1f5f99;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <img src="/softwares/assets/software-icon.png?v={{ASSET_VERSION}}" alt="Software">
+    <div>
+        <h1><?= h($displayProduct) ?></h1>
+        <div class="subtitle">
+            Téléchargement du package logiciel
+        </div>
+        <div class="contact">
+            contact : <a href="mailto:admin@pb-bzh-concept.fr">admin@pb-bzh-concept.fr</a>
+        </div>
+    </div>
+</header>
+
+<div class="download-card">
+    <h2><?= h($displayProduct) ?></h2>
+
+    <?php if ($webSetupUrl !== null): ?>
+        <a class="button" href="<?= h($webSetupUrl) ?>">
+            Télécharger l'installateur web
+        </a>
+    <?php else: ?>
+        <span class="disabled">Installateur web indisponible</span>
+    <?php endif; ?>
+
+    <?php if ($msiUrl !== null): ?>
+        <a class="button secondary" href="<?= h($msiUrl) ?>">
+            Télécharger le MSI direct
+        </a>
+    <?php else: ?>
+        <span class="disabled">MSI indisponible</span>
+    <?php endif; ?>
+
+	<?php if ($apkUrl !== null): ?>
+	<a class="button" href="<?= h($apkUrl) ?>">
+		Télécharger l'APK Android
+	</a>
+	<?php endif; ?>
+	
+	
+	<div class="details">
+        Catégorie : <?= h($displayCategory) ?><br>
+        Produit : <?= h($displayProduct) ?>
+    </div>
+</div>
+
+<p class="back">
+    <a href="./index.php">← Retour au catalogue logiciels</a>
+</p>
+
+<footer>
+    <p>© <?= date('Y') ?> PB BZH Concept - Tous droits réservés.</p>
+    <p>contact : <a href="mailto:admin@pb-bzh-concept.fr">admin@pb-bzh-concept.fr</a></p>
+    <p><a href="/privacy.php">Politique de confidentialité</a></p>
+</footer>
+
+</body>
+</html>

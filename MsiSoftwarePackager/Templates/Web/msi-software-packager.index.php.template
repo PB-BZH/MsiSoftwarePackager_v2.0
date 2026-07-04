@@ -1,0 +1,321 @@
+<?php
+declare(strict_types=1);
+
+$rootDir = __DIR__;
+
+$excluded = [
+    '.',
+    '..',
+    '.htaccess',
+    'index.php',
+    'index.html',
+    'assets',
+    'download.php'
+];
+
+function h(string $value): string
+{
+    return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
+function friendly_name_from_slug(string $value): string
+{
+    $displayName = str_replace(['-', '_'], ' ', $value);
+    return ucwords($displayName);
+}
+
+function read_manifest(string $projectPath): ?array
+{
+    $manifestPath = $projectPath . DIRECTORY_SEPARATOR . 'update.json';
+
+    if (!is_file($manifestPath)) {
+        return null;
+    }
+
+    $json = file_get_contents($manifestPath);
+
+    if ($json === false || trim($json) === '') {
+        return null;
+    }
+
+    $manifest = json_decode($json, true);
+
+    return is_array($manifest)
+        ? $manifest
+        : null;
+}
+
+function get_product_display_name(string $projectPath, string $fallbackSlug): string
+{
+    $manifest = read_manifest($projectPath);
+
+    if ($manifest !== null &&
+        isset($manifest['ProductName']) &&
+        is_string($manifest['ProductName']) &&
+        trim($manifest['ProductName']) !== '') {
+        return trim($manifest['ProductName']);
+    }
+
+    return friendly_name_from_slug($fallbackSlug);
+}
+
+$projects = [];
+
+foreach (scandir($rootDir) as $entry) {
+    if (in_array($entry, $excluded, true)) {
+        continue;
+    }
+
+    $fullPath = $rootDir . DIRECTORY_SEPARATOR . $entry;
+
+    if (!is_dir($fullPath)) {
+        continue;
+    }
+
+    $webSetupFiles = glob($fullPath . DIRECTORY_SEPARATOR . '*WebSetup.exe');
+    $setupFiles    = glob($fullPath . DIRECTORY_SEPARATOR . '*Setup.exe');
+    $msiFiles      = glob($fullPath . DIRECTORY_SEPARATOR . '*.msi');
+	$apkFiles = glob($fullPath . DIRECTORY_SEPARATOR . '*.apk');
+
+    $webSetup = null;
+
+    if (count($webSetupFiles) > 0) {
+        $webSetup = rawurlencode($entry) . '/' . rawurlencode(basename($webSetupFiles[0]));
+    } elseif (count($setupFiles) > 0) {
+        $webSetup = rawurlencode($entry) . '/' . rawurlencode(basename($setupFiles[0]));
+    }
+
+    $msiFile = count($msiFiles) > 0
+        ? rawurlencode($entry) . '/' . rawurlencode(basename($msiFiles[0]))
+        : null;
+    
+	$apkFile = count($apkFiles) > 0
+    ? rawurlencode($entry) . '/' . rawurlencode(basename($apkFiles[0]))
+    : null;
+	
+    $displayName = get_product_display_name($fullPath, $entry);
+
+    $projects[] = [
+        'name'     => $displayName,
+        'webSetup' => $webSetup,
+        'msi'      => $msiFile,
+		'apk' => $apkFile
+    ];
+}
+
+usort($projects, function ($a, $b) {
+    return strcasecmp($a['name'], $b['name']);
+});
+?>
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>{{CATEGORY_TITLE}}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="icon" href="/softwares/assets/software-icon.png?v={{ASSET_VERSION}}" type="image/png">
+    <link rel="shortcut icon" href="/softwares/assets/software-icon.png?v={{ASSET_VERSION}}" type="image/png">
+    <link rel="apple-touch-icon" href="/softwares/assets/software-icon.png?v={{ASSET_VERSION}}">
+
+    <style>
+        body {
+            font-family: Segoe UI, Arial, sans-serif;
+            margin: 40px;
+            background: #f5f5f5;
+            color: #222;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+            margin-bottom: 30px;
+        }
+
+        header img {
+            width: 124px;
+            height: 124px;
+            object-fit: contain;
+            border-radius: 12px;
+            display: block;
+        }
+
+        h1 {
+            margin: 0;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-top: 6px;
+        }
+
+        .contact {
+            color: #555;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
+        .contact a {
+            color: #1f5f99;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .contact a:hover {
+            text-decoration: underline;
+        }
+
+        .project {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 22px 26px;
+            margin-bottom: 14px;
+            max-width: 860px;
+        }
+
+        .project h2 {
+            margin: 0 0 14px 0;
+            font-size: 22px;
+        }
+
+        a.button {
+            display: inline-block;
+            text-decoration: none;
+            color: #fff;
+            background: #1f5f99;
+            padding: 10px 16px;
+            border-radius: 4px;
+            margin-right: 10px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        a.button:hover {
+            background: #17486f;
+        }
+
+        a.button.secondary {
+            background: #444;
+        }
+
+        a.button.secondary:hover {
+            background: #222;
+        }
+
+        .disabled {
+            display: inline-block;
+            color: #777;
+            background: #eee;
+            padding: 10px 16px;
+            border-radius: 4px;
+            margin-right: 10px;
+            margin-bottom: 8px;
+        }
+
+        .back {
+            margin-top: 25px;
+        }
+
+        .back a {
+            color: #1f5f99;
+            text-decoration: none;
+        }
+
+        .back a:hover {
+            text-decoration: underline;
+        }
+
+        .empty {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 18px 22px;
+            max-width: 820px;
+            color: #666;
+        }
+
+        footer {
+            margin-top: 34px;
+            padding-top: 18px;
+            border-top: 1px solid #ddd;
+            color: #666;
+            max-width: 860px;
+            font-size: 14px;
+        }
+
+        footer p {
+            margin: 6px 0;
+        }
+
+        footer a {
+            color: #1f5f99;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <img src="/softwares/assets/software-icon.png?v={{ASSET_VERSION}}" alt="MSI Software Packager">
+    <div>
+        <h1>{{CATEGORY_TITLE}}</h1>
+        <div class="subtitle">{{CATEGORY_SUBTITLE}}</div>
+        <div class="contact">
+            contact : <a href="mailto:admin@pb-bzh-concept.fr">admin@pb-bzh-concept.fr</a>
+        </div>
+    </div>
+</header>
+
+<?php if (count($projects) === 0): ?>
+    <div class="empty">
+        Aucun package disponible pour le moment.
+    </div>
+<?php else: ?>
+    <?php foreach ($projects as $project): ?>
+        <div class="project">
+            <h2><?= h($project['name']) ?></h2>
+
+            <?php if ($project['webSetup'] !== null): ?>
+                <a class="button" href="<?= h($project['webSetup']) ?>">
+                    Télécharger l'installateur web
+                </a>
+            <?php else: ?>
+                <span class="disabled">Installateur web indisponible</span>
+            <?php endif; ?>
+
+            <?php if ($project['msi'] !== null): ?>
+                <a class="button secondary" href="<?= h($project['msi']) ?>">
+                    Télécharger le MSI direct
+                </a>
+            <?php else: ?>
+                <span class="disabled">MSI indisponible</span>
+            <?php endif; ?>
+
+			<?php if ($project['apk'] !== null): ?>
+			<a class="button" href="<?= h($project['apk']) ?>">
+				Télécharger l'APK Android
+			</a>
+			<?php endif; ?>
+        </div>
+    <?php endforeach; ?>
+<?php endif; ?>
+
+<p class="back">
+    <a href="../">← Retour au catalogue logiciels</a>
+</p>
+
+<footer>
+    <p>© <?= date('Y') ?> PB BZH Concept - Tous droits réservés.</p>
+    <p>contact : <a href="mailto:admin@pb-bzh-concept.fr">admin@pb-bzh-concept.fr</a></p>
+    <p><a href="/privacy.php">Politique de confidentialité</a></p>
+</footer>
+
+</body>
+</html>

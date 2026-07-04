@@ -1,0 +1,23 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal">
+
+	<Bundle
+		Name="{{WebBundleName}}"
+		Manufacturer="{{Manufacturer}}"
+		Version="{{Version}}"
+		UpgradeCode="{{WebBundleUpgradeCode}}"
+		Compressed="yes">
+
+		{{BundleBootstrapperApplicationBlock}}
+		
+		<Chain>
+			<MsiPackage
+				SourceFile="{{MsiPath}}"
+				DownloadUrl="{{MsiDownloadUrl}}"
+				Compressed="no"
+				Vital="yes" />
+		</Chain>
+
+	</Bundle>
+
+</Wix>

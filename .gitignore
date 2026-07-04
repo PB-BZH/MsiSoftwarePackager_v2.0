@@ -1,0 +1,50 @@
+# Build outputs
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.csproj.user
+
+# MSI Software Packager generated build folders
+Build/
+Archives/
+Reports/
+Logs/
+Upload/
+Release/
+publish/
+
+
+# Generated installers / packages
+*.msi
+*.exe
+*.cab
+*.wixobj
+*.wixpdb
+*.bundle
+*.zip
+*.txt
+*.docx
+*.log
+*.apk
+*.aab
+*.sha256.txt
+*.pfx
+*.pem
+*.keystore
+*.jks
+
+# Temporary signing folders
+_codesign_temp_*/
+**/_codesign_temp_*/
+
+# WinSCP generated scripts/logs
+winscp-upload.txt
+winscp-upload.masked.txt
+winscp-upload_*.log
+
+# Sensitive / local profile data
+*.local.json
+*.secret.json
+

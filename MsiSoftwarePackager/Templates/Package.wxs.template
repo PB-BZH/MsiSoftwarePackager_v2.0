@@ -1,0 +1,37 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+
+	<Package
+		Name="{{ProductName}}"
+		Manufacturer="{{Manufacturer}}"
+		Version="{{Version}}"
+		UpgradeCode="{{UpgradeCode}}"
+		Language="1036"
+		InstallerVersion="500"
+		Scope="perMachine">
+
+		<MajorUpgrade DowngradeErrorMessage="!(loc.DowngradeError)" />
+
+		<MediaTemplate EmbedCab="yes" />
+
+		{{MsiLicenseUiBlock}}
+		
+		<Feature
+			Id="MainFeature"
+			Title="{{ProductName}}"
+			Level="1">
+			<ComponentGroupRef
+				Id="{{ComponentGroupId}}" />
+		</Feature>
+
+		<Icon
+			Id="AppIcon.ico"
+			SourceFile="{{IconPath}}" />
+
+		<Property
+			Id="ARPPRODUCTICON"
+			Value="AppIcon.ico" />
+
+	</Package>
+
+</Wix>
