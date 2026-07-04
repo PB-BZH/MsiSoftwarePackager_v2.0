@@ -13,10 +13,16 @@ public sealed class MsiPackageProfile {
   public OutputOptions Output { get; set; } = new();
   public BundleOptions Bundle { get; set; } = new();
   public WebInstallerOptions WebInstaller { get; set; } = new();
+  public AndroidPackageOptions Android { get; set; } = new();
   public UploadOptions Upload { get; set; } = new();
   public UpdateManifest UpdateManifest { get; set; } = new();
   public SigningOptions Signing { get; set; } = new();
   public SigningLicense License { get; set; } = new();
+}
+
+public sealed class AndroidPackageOptions {
+  public bool PublishApk { get; set; } = false;
+  public string ApkFilePath { get; set; } = "";
 }
 
 public sealed class SigningLicense {
@@ -107,13 +113,8 @@ public sealed class WebInstallerOptions {
   public bool PrepareWebPublishFolder { get; set; } = true;
   public string WebPublishDirectory { get; set; } = @"C:\wamp64\www\msi-software-packager\";
   public string WebProductFolder { get; set; } = "";
-  public AndroidPackageOptions Android { get; set; } = new();
 }
 
-public sealed class AndroidPackageOptions {
-  public bool PublishApk { get; set; } = false;
-  public string ApkFilePath { get; set; } = "";
-}
 
 public sealed class BundleOptions {
   public bool BuildBundle { get; set; } = false;
