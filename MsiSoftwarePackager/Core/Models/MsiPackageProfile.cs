@@ -107,6 +107,12 @@ public sealed class WebInstallerOptions {
   public bool PrepareWebPublishFolder { get; set; } = true;
   public string WebPublishDirectory { get; set; } = @"C:\wamp64\www\msi-software-packager\";
   public string WebProductFolder { get; set; } = "";
+  public AndroidPackageOptions Android { get; set; } = new();
+}
+
+public sealed class AndroidPackageOptions {
+  public bool PublishApk { get; set; } = false;
+  public string ApkFilePath { get; set; } = "";
 }
 
 public sealed class BundleOptions {
