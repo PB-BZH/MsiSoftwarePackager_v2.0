@@ -121,12 +121,12 @@ public static class WindowsCredentialManager {
   }
   public static string BuildKeystoreTargetName(string userName) {
     userName = NormalizeCredentialPart(userName,"unknown-user");
-    return BuildCredentialTarget("android","Keystore","TotpSecret",userName);
+    return BuildCredentialTarget("android","Keystore","StorePassword",userName);
   }
 
   public static string BuildKeyTargetName(string userName) {
     userName = NormalizeCredentialPart(userName,"unknown-user");
-    return BuildCredentialTarget("android","Key","TotpSecret",userName);
+    return BuildCredentialTarget("android","Key","KeyPassword",userName);
   }
 
   public static string BuildUploadTargetName(string protocol,string host,string userName) {
