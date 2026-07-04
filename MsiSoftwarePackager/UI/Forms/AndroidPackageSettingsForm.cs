@@ -53,8 +53,7 @@ public partial class AndroidPackageSettingsForm: Form {
     // --------------------------------------------------
     // Keystore password from Windows Credential Manager
     // --------------------------------------------------
-    string keystorePasswordTarget =
-        AndroidOptions.KeystorePasswordCredentialTarget ?? string.Empty;
+    string keystorePasswordTarget = AndroidOptions.KeystorePasswordCredentialTarget ?? string.Empty;
     if (string.IsNullOrWhiteSpace(keystorePasswordTarget) && !string.IsNullOrWhiteSpace(AndroidOptions.KeystorePasswordCredentialTarget)) {
       keystorePasswordTarget = WindowsCredentialManager.BuildKeystoreTargetName(AndroidOptions.KeystorePasswordCredentialTarget);
     }

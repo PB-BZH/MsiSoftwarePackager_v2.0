@@ -69,6 +69,7 @@ partial class MainForm {
     mnuBuild = new ToolStripMenuItem();
     mnuGenerateWix = new ToolStripMenuItem();
     mnuBuildMsi = new ToolStripMenuItem();
+    mnuBuildApk = new ToolStripMenuItem();
     toolStripSeparator3 = new ToolStripSeparator();
     mnuGenerateWebSiteOnly = new ToolStripMenuItem();
     mnuUploadWebSiteOnly = new ToolStripMenuItem();
@@ -197,7 +198,7 @@ partial class MainForm {
     btnTestUploadConnection = new Button();
     btnUploadNow = new Button();
     txtLog = new RichTextBox();
-    btnAndroidPackageSettings = new Button();
+    btnBuildApk = new Button();
     mainMenu.SuspendLayout();
     grpbxFeature.SuspendLayout();
     grpbxBundle.SuspendLayout();
@@ -302,7 +303,7 @@ partial class MainForm {
     // 
     // mnuBuild
     // 
-    mnuBuild.DropDownItems.AddRange(new ToolStripItem[] { mnuGenerateWix,mnuBuildMsi,toolStripSeparator3,mnuGenerateWebSiteOnly,mnuUploadWebSiteOnly,toolStripSeparator8,mnuReleaseChecklist,mnuReleaseSummary });
+    mnuBuild.DropDownItems.AddRange(new ToolStripItem[] { mnuGenerateWix,mnuBuildMsi,mnuBuildApk,toolStripSeparator3,mnuGenerateWebSiteOnly,mnuUploadWebSiteOnly,toolStripSeparator8,mnuReleaseChecklist,mnuReleaseSummary });
     mnuBuild.Name = "mnuBuild";
     mnuBuild.Size = new Size(46,20);
     mnuBuild.Text = "Build";
@@ -320,6 +321,13 @@ partial class MainForm {
     mnuBuildMsi.Size = new Size(193,22);
     mnuBuildMsi.Text = "Build MSI";
     mnuBuildMsi.Click += btnBuildMsi_Click;
+    // 
+    // mnuBuildApk
+    // 
+    mnuBuildApk.Name = "mnuBuildApk";
+    mnuBuildApk.Size = new Size(193,22);
+    mnuBuildApk.Text = "Build APK";
+    mnuBuildApk.Click += mnuBuildApk_Click;
     // 
     // toolStripSeparator3
     // 
@@ -725,7 +733,7 @@ partial class MainForm {
     // 
     // btnLoadProfile
     // 
-    btnLoadProfile.Location = new Point(115,443);
+    btnLoadProfile.Location = new Point(108,445);
     btnLoadProfile.Name = "btnLoadProfile";
     btnLoadProfile.Size = new Size(90,30);
     btnLoadProfile.TabIndex = 17;
@@ -735,7 +743,7 @@ partial class MainForm {
     // 
     // btnSaveProfile
     // 
-    btnSaveProfile.Location = new Point(211,443);
+    btnSaveProfile.Location = new Point(204,445);
     btnSaveProfile.Name = "btnSaveProfile";
     btnSaveProfile.Size = new Size(90,30);
     btnSaveProfile.TabIndex = 18;
@@ -745,7 +753,7 @@ partial class MainForm {
     // 
     // btnGenerateWix
     // 
-    btnGenerateWix.Location = new Point(567,445);
+    btnGenerateWix.Location = new Point(663,445);
     btnGenerateWix.Name = "btnGenerateWix";
     btnGenerateWix.Size = new Size(90,30);
     btnGenerateWix.TabIndex = 19;
@@ -755,7 +763,7 @@ partial class MainForm {
     // 
     // btnBuildMsi
     // 
-    btnBuildMsi.Location = new Point(663,445);
+    btnBuildMsi.Location = new Point(567,445);
     btnBuildMsi.Name = "btnBuildMsi";
     btnBuildMsi.Size = new Size(90,30);
     btnBuildMsi.TabIndex = 20;
@@ -1404,7 +1412,7 @@ partial class MainForm {
     // 
     // btnNewProfile
     // 
-    btnNewProfile.Location = new Point(19,443);
+    btnNewProfile.Location = new Point(12,445);
     btnNewProfile.Name = "btnNewProfile";
     btnNewProfile.Size = new Size(90,30);
     btnNewProfile.TabIndex = 18;
@@ -1414,7 +1422,7 @@ partial class MainForm {
     // 
     // btnSaveProfilAs
     // 
-    btnSaveProfilAs.Location = new Point(307,443);
+    btnSaveProfilAs.Location = new Point(300,445);
     btnSaveProfilAs.Name = "btnSaveProfilAs";
     btnSaveProfilAs.Size = new Size(104,30);
     btnSaveProfilAs.TabIndex = 18;
@@ -1436,7 +1444,7 @@ partial class MainForm {
     pnlMain.Controls.Add(btnSaveProfilAs);
     pnlMain.Controls.Add(btnNewProfile);
     pnlMain.Controls.Add(btnSaveProfile);
-    pnlMain.Controls.Add(btnAndroidPackageSettings);
+    pnlMain.Controls.Add(btnBuildApk);
     pnlMain.Controls.Add(btnGenerateWix);
     pnlMain.Controls.Add(btnBuildMsi);
     pnlMain.Controls.Add(tabPreview);
@@ -1475,15 +1483,15 @@ partial class MainForm {
     txtLog.TabIndex = 109;
     txtLog.Text = "";
     // 
-    // btnAndroidPackageSettings
+    // btnBuildApk
     // 
-    btnAndroidPackageSettings.Location = new Point(471,445);
-    btnAndroidPackageSettings.Name = "btnAndroidPackageSettings";
-    btnAndroidPackageSettings.Size = new Size(90,30);
-    btnAndroidPackageSettings.TabIndex = 19;
-    btnAndroidPackageSettings.Text = "APK setting...";
-    btnAndroidPackageSettings.UseVisualStyleBackColor = true;
-    btnAndroidPackageSettings.Click += btnAndroidPackageSettings_Click;
+    btnBuildApk.Location = new Point(471,445);
+    btnBuildApk.Name = "btnBuildApk";
+    btnBuildApk.Size = new Size(90,30);
+    btnBuildApk.TabIndex = 19;
+    btnBuildApk.Text = "Build APK";
+    btnBuildApk.UseVisualStyleBackColor = true;
+    btnBuildApk.Click += btnBuildApk_Click;
     // 
     // MainForm
     // 
@@ -1630,5 +1638,6 @@ partial class MainForm {
   private Button btnTestUploadConnection;
   private Button btnUploadNow;
   private RichTextBox txtLog;
-  private Button btnAndroidPackageSettings;
+  private Button btnBuildApk;
+  private ToolStripMenuItem mnuBuildApk;
 }

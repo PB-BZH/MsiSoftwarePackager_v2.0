@@ -4085,6 +4085,11 @@ public partial class MainForm: Form {
         service.Build(_profile,templateRoot);
       });
 
+      //if (_profile.Android.PublishApk) {
+      //  AndroidBuildService androidService = new();
+      //  androidService.BuildApk(_profile,AppendLog);
+      //}
+
       PrepareWebPublishFolder();
 
       RunWinScpUpload();
@@ -5210,6 +5215,11 @@ public partial class MainForm: Form {
         return;
 
       AppendLog("[INFO] Generate web site only started.");
+
+      if (_profile.Android.PublishApk) {
+        AndroidBuildService androidService = new();
+        androidService.BuildApk(_profile,AppendLog);
+      }
 
       PrepareWebPublishFolder();
 
@@ -6482,5 +6492,127 @@ public partial class MainForm: Form {
     RefreshPreviewTabs();
 
     AppendLog("[INFO] Android APK settings updated.");
+  }
+
+  private async void mnuBuildApk_Click(object? sender,EventArgs e) {
+    ApplyUiToProfile();
+    AutoSaveProfile();
+
+    if (!_profile.Android.PublishApk) {
+      MessageBox.Show(
+          this,
+          "Android APK publishing is disabled in APK settings.",
+          "Build APK",
+          MessageBoxButtons.OK,
+          MessageBoxIcon.Information
+      );
+      return;
+    }
+
+    try {
+      mnuBuildApk.Enabled = false;
+      btnBuildMsi.Enabled = false;
+      btnGenerateWix.Enabled = false;
+      btnBuildApk.Enabled = false;
+
+      AndroidBuildService service = new();
+
+      string apkPath = await Task.Run(() =>
+          service.BuildApk(_profile,AppendLog)
+      );
+
+      AutoSaveProfile();
+      RefreshPreviewTabs();
+
+      MessageBox.Show(
+          this,
+          "Android APK generated successfully." +
+          Environment.NewLine +
+          Environment.NewLine +
+          apkPath,
+          "Build APK",
+          MessageBoxButtons.OK,
+          MessageBoxIcon.Information
+      );
+    }
+    catch (Exception ex) {
+      AppendLog("[ERROR] Android APK build failed : " + ex.Message);
+
+      MessageBox.Show(
+          this,
+          ex.Message,
+          "Build APK",
+          MessageBoxButtons.OK,
+          MessageBoxIcon.Error
+      );
+    }
+    finally {
+      mnuBuildApk.Enabled = true;
+      btnBuildMsi.Enabled = true;
+      btnGenerateWix.Enabled = true;
+      btnBuildApk.Enabled = true;
+    }
+  }
+
+  private async void btnBuildApk_Click(object? sender,EventArgs e) {
+    ApplyUiToProfile();
+
+    using AndroidPackageSettingsForm form = new(_profile.Android);
+
+    if (form.ShowDialog(this) != DialogResult.OK)
+      return;
+
+    _profile.Android = form.AndroidOptions;
+
+    if (!_profile.Android.PublishApk) {
+      MessageBox.Show(
+          this,
+          "Publish Android APK must be checked.",
+          "Build APK",
+          MessageBoxButtons.OK,
+          MessageBoxIcon.Information
+      );
+      return;
+    }
+
+    AutoSaveProfile();
+
+    try {
+      btnBuildApk.Enabled = false;
+      btnBuildMsi.Enabled = false;
+      btnGenerateWix.Enabled = false;
+
+      AndroidBuildService service = new();
+
+      string apkPath = await Task.Run(() =>
+          service.BuildApk(_profile,AppendLog)
+      );
+
+      AppendLog("[OK] Android APK generated : " + apkPath);
+
+      if (_profile.Upload.UploadWebFilesAfterBuild) {
+        PrepareWebPublishFolder();
+        RunWinScpUpload(forceUpload: true);
+      }
+
+      AutoSaveProfile();
+      RefreshPreviewTabs();
+    }
+    catch (Exception ex) {
+      AppendLog("[ERROR] Android APK build failed : " + ex.Message);
+
+      MessageBox.Show(
+          this,
+          ex.Message,
+          "Build APK",
+          MessageBoxButtons.OK,
+          MessageBoxIcon.Error
+      );
+    }
+    finally {
+      btnBuildApk.Enabled = true;
+      btnBuildMsi.Enabled = true;
+      btnGenerateWix.Enabled = true;
+    }
   }
 }
