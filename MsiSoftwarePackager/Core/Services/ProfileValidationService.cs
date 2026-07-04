@@ -24,9 +24,28 @@ public static class ProfileValidationService {
     ValidateTemplates(templateRoot,result);
     ValidateAssets(templateRoot,result);
     ValidateWeb(profile,result);
+    ValidateAndroid(profile,result);
     ValidateUpload(profile,result);
 
     return result;
+  }
+
+  private static void ValidateAndroid(
+    MsiPackageProfile profile,
+    ProfileValidationResult result) {
+    if (!profile.Android.PublishApk)
+      return;
+
+    if (string.IsNullOrWhiteSpace(profile.Android.ApkFilePath)) {
+      result.Errors.Add("APK file path is empty.");
+      return;
+    }
+
+    if (!profile.Android.ApkFilePath.EndsWith(".apk",StringComparison.OrdinalIgnoreCase))
+      result.Errors.Add("APK file must end with .apk.");
+
+    if (!File.Exists(profile.Android.ApkFilePath))
+      result.Errors.Add("APK file not found : " + profile.Android.ApkFilePath);
   }
 
   private static void ValidateAssets(
