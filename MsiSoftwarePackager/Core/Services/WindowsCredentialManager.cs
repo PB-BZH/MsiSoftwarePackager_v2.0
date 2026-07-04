@@ -48,23 +48,16 @@ public static class WindowsCredentialManager {
   [DllImport("advapi32.dll",SetLastError = true)]
   private static extern void CredFree(IntPtr buffer);
 
-  public static void SavePassword(
-      string target,
-      string userName,
-      string password) {
+  public static void SavePassword(string target,string userName,string password) {
     if (string.IsNullOrWhiteSpace(target))
       throw new ArgumentException("Credential target is empty.",nameof(target));
 
     if (password == null)
       password = string.Empty;
-
     byte[] passwordBytes = Encoding.Unicode.GetBytes(password);
-
     IntPtr passwordBlob = Marshal.AllocCoTaskMem(passwordBytes.Length);
-
     try {
       Marshal.Copy(passwordBytes,0,passwordBlob,passwordBytes.Length);
-
       CREDENTIAL credential = new() {
         Type = CRED_TYPE_GENERIC,
         TargetName = target,
@@ -74,13 +67,9 @@ public static class WindowsCredentialManager {
         Persist = CRED_PERSIST_LOCAL_MACHINE,
         Comment = "Stored by MsiSoftwarePackager"
       };
-
       if (!CredWrite(ref credential,0)) {
         int error = Marshal.GetLastWin32Error();
-
-        throw new InvalidOperationException(
-            "Unable to write Windows credential. Win32 error: " + error
-        );
+        throw new InvalidOperationException("Unable to write Windows credential. Win32 error: " + error);
       }
     }
     finally {
@@ -91,33 +80,16 @@ public static class WindowsCredentialManager {
   public static string ReadPassword(string target) {
     if (string.IsNullOrWhiteSpace(target))
       return string.Empty;
-
-    if (!CredRead(
-            target,
-            CRED_TYPE_GENERIC,
-            0,
-            out IntPtr credentialPtr)) {
+    if (!CredRead(target,CRED_TYPE_GENERIC,0,out IntPtr credentialPtr)) {
       return string.Empty;
     }
-
     try {
-      CREDENTIAL credential =
-          Marshal.PtrToStructure<CREDENTIAL>(credentialPtr);
-
-      if (credential.CredentialBlob == IntPtr.Zero ||
-          credential.CredentialBlobSize <= 0) {
+      CREDENTIAL credential = Marshal.PtrToStructure<CREDENTIAL>(credentialPtr);
+      if (credential.CredentialBlob == IntPtr.Zero || credential.CredentialBlobSize <= 0) {
         return string.Empty;
       }
-
       byte[] passwordBytes = new byte[credential.CredentialBlobSize];
-
-      Marshal.Copy(
-          credential.CredentialBlob,
-          passwordBytes,
-          0,
-          credential.CredentialBlobSize
-      );
-
+      Marshal.Copy(credential.CredentialBlob,passwordBytes,0,credential.CredentialBlobSize);
       return Encoding.Unicode.GetString(passwordBytes);
     }
     finally {
@@ -128,121 +100,53 @@ public static class WindowsCredentialManager {
   public static bool DeletePassword(string target) {
     if (string.IsNullOrWhiteSpace(target))
       return false;
-
-    return CredDelete(
-        target,
-        CRED_TYPE_GENERIC,
-        0
-    );
+    return CredDelete(target,CRED_TYPE_GENERIC,0);
   }
 
-  public static string BuildTargetName(
-      string protocol,
-      string host,
-      string userName) {
-    protocol = NormalizeCredentialPart(
-        protocol,
-        "SFTP"
-    );
-
-    host = NormalizeCredentialPart(
-        host,
-        "unknown-host"
-    );
-
-    userName = NormalizeCredentialPart(
-        userName,
-        "unknown-user"
-    );
-
-    return BuildCredentialTarget(
-        "Upload",
-        protocol,
-        host,
-        userName
-    );
+  public static string BuildTargetName(string protocol,string host,string userName) {
+    protocol = NormalizeCredentialPart(protocol,"SFTP");
+    host = NormalizeCredentialPart(host,"unknown-host");
+    userName = NormalizeCredentialPart(userName,"unknown-user");
+    return BuildCredentialTarget("Upload",protocol,host,userName);
   }
 
-  public static string BuildSslComSigningTargetName(
-      string userName) {
-    userName = NormalizeCredentialPart(
-        userName,
-        "unknown-user"
-    );
-
-    return BuildCredentialTarget(
-        "CodeSigning",
-        "SSLCom",
-        "eSigner",
-        userName
-    );
+  public static string BuildSslComSigningTargetName(string userName) {
+    userName = NormalizeCredentialPart(userName,"unknown-user");
+    return BuildCredentialTarget("CodeSigning","SSLCom","eSigner",userName);
   }
 
-  public static string BuildSslComTotpSecretTargetName(
-      string userName) {
-    userName = NormalizeCredentialPart(
-        userName,
-        "unknown-user"
-    );
-
-    return BuildCredentialTarget(
-        "CodeSigning",
-        "SSLCom",
-        "TotpSecret",
-        userName
-    );
+  public static string BuildSslComTotpSecretTargetName(string userName) {
+    userName = NormalizeCredentialPart(userName,"unknown-user");
+    return BuildCredentialTarget("CodeSigning","SSLCom","TotpSecret",userName);
+  }
+  public static string BuildKeystoreTargetName(string userName) {
+    userName = NormalizeCredentialPart(userName,"unknown-user");
+    return BuildCredentialTarget("android","Keystore","TotpSecret",userName);
   }
 
-  public static string BuildUploadTargetName(
-    string protocol,
-    string host,
-    string userName) {
-    protocol = NormalizeCredentialPart(
-        protocol,
-        "SFTP"
-    );
-
-    host = NormalizeCredentialPart(
-        host,
-        "unknown-host"
-    );
-
-    userName = NormalizeCredentialPart(
-        userName,
-        "unknown-user"
-    );
-
-    return BuildCredentialTarget(
-        "Upload",
-        protocol,
-        host,
-        userName
-    );
+  public static string BuildKeyTargetName(string userName) {
+    userName = NormalizeCredentialPart(userName,"unknown-user");
+    return BuildCredentialTarget("android","Key","TotpSecret",userName);
   }
 
-  private static string BuildCredentialTarget(
-      params string[] parts) {
+  public static string BuildUploadTargetName(string protocol,string host,string userName) {
+    protocol = NormalizeCredentialPart(protocol,"SFTP");
+    host = NormalizeCredentialPart(host,"unknown-host");
+    userName = NormalizeCredentialPart(userName,"unknown-user");
+    return BuildCredentialTarget("Upload",protocol,host,userName);
+  }
+
+  private static string BuildCredentialTarget(params string[] parts) {
     List<string> normalizedParts = new();
-
     foreach (string part in parts) {
-      normalizedParts.Add(
-          NormalizeCredentialPart(
-              part,
-              "unknown"
-          )
-      );
+      normalizedParts.Add(NormalizeCredentialPart(part,"unknown"));
     }
-
-    return "MsiSoftwarePackager:" +
-           string.Join(":",normalizedParts);
+    return "MsiSoftwarePackager:" + string.Join(":",normalizedParts);
   }
 
-  private static string NormalizeCredentialPart(
-      string value,
-      string defaultValue) {
+  private static string NormalizeCredentialPart(string value,string defaultValue) {
     if (string.IsNullOrWhiteSpace(value))
       return defaultValue;
-
     return value
         .Trim()
         .Replace(":","-")

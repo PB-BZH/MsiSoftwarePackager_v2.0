@@ -1790,11 +1790,13 @@ public partial class MainForm: Form {
   }
 
   private void PrepareWebPublishFolder() {
-    if (!_profile.WebInstaller.BuildWebInstaller)
+    if (!_profile.WebInstaller.BuildWebInstaller &&
+        !_profile.Android.PublishApk)
       return;
 
     if (!_profile.WebInstaller.PrepareWebPublishFolder)
       return;
+
     CleanWebPublishDirectory();
     string publishRoot =
         Path.GetFullPath(_profile.WebInstaller.WebPublishDirectory);
@@ -1921,6 +1923,25 @@ public partial class MainForm: Form {
       AppendLog("[WARN] Web setup file not found for web publish : " + webSetupPath);
     }
 
+    if (_profile.Android.PublishApk) {
+      string apkPath = _profile.Android.ApkFilePath;
+
+      if (File.Exists(apkPath)) {
+        string targetApkPath = Path.Combine(
+            projectPublishDir,
+            Path.GetFileName(apkPath)
+        );
+
+        File.Copy(apkPath,targetApkPath,overwrite: true);
+        WriteSha256File(targetApkPath);
+
+        AppendLog("[OK] APK copied to web project folder : " + targetApkPath);
+      }
+      else {
+        AppendLog("[WARN] APK file not found for web publish : " + apkPath);
+      }
+    }
+
     // ==================================================
     // Generate update manifest
     // ==================================================
@@ -1982,6 +2003,22 @@ public partial class MainForm: Form {
     );
 
     AppendLog("[INFO] Web publish folder prepared : " + publishRoot);
+  }
+
+  private void WriteSha256File(string filePath) {
+    using FileStream stream = File.OpenRead(filePath);
+    byte[] hash = System.Security.Cryptography.SHA256.HashData(stream);
+
+    string sha256 = Convert.ToHexString(hash).ToLowerInvariant();
+    string shaFilePath = filePath + ".sha256.txt";
+
+    File.WriteAllText(
+        shaFilePath,
+        sha256 + "  " + Path.GetFileName(filePath),
+        Encoding.UTF8
+    );
+
+    AppendLog("[OK] SHA256 generated : " + shaFilePath);
   }
 
   private static void EnsureDefaultWebAssets(string assetsDir) {
