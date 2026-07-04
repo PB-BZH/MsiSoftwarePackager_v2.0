@@ -23,6 +23,12 @@ public sealed class MsiPackageProfile {
 public sealed class AndroidPackageOptions {
   public bool PublishApk { get; set; } = false;
   public string ApkFilePath { get; set; } = "";
+  public string Configuration { get; set; } = "Release";
+  public string TargetFramework { get; set; } = "net10.0-android";
+  public string KeystoreFile { get; set; } = "";
+  public string KeyAlias { get; set; } = "";
+  public string KeystorePasswordCredentialTarget { get; set; } = "";
+  public string KeyPasswordCredentialTarget { get; set; } = "";
 }
 
 public sealed class SigningLicense {

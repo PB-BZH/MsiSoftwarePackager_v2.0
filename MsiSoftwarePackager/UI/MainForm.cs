@@ -44,6 +44,7 @@ public partial class MainForm: Form {
   private GlobalSettings _globalSettings = new();
   private bool _profileHasUnsavedChanges;
   private LicenseService _licenseService;
+  public AndroidPackageOptions AndroidOptions { get; private set; }
 
   public MainForm() {
     InitializeComponent();
@@ -6272,15 +6273,10 @@ public partial class MainForm: Form {
 
     if (dialog.ShowDialog(this) != DialogResult.OK)
       return;
-
     _profile.Signing = dialog.Signing;
-
     _profileHasUnsavedChanges = true;
-
     AutoSaveProfile();
-
     RefreshPreviewTabs();
-
     AppendLog("[INFO] Code signing settings updated.");
   }
 
@@ -6435,5 +6431,19 @@ public partial class MainForm: Form {
 
   private void mnuImportLicense_Click(object? sender,EventArgs e) {
     LicenseHelper.ImporterLicence(this,_licenseService);
+  }
+
+  private void btnAndroidPackageSettings_Click(object sender,EventArgs e) {
+    using AndroidPackageSettingsForm form = new(_profile.Android);
+
+    if (form.ShowDialog(this) != DialogResult.OK)
+      return;
+
+    _profile.Android = form.AndroidOptions;
+
+    AutoSaveProfile();
+    RefreshPreviewTabs();
+
+    AppendLog("[INFO] Android APK settings updated.");
   }
 }

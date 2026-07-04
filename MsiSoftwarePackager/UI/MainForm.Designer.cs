@@ -197,6 +197,7 @@ partial class MainForm {
     btnTestUploadConnection = new Button();
     btnUploadNow = new Button();
     txtLog = new RichTextBox();
+    btnAndroidPackageSettings = new Button();
     mainMenu.SuspendLayout();
     grpbxFeature.SuspendLayout();
     grpbxBundle.SuspendLayout();
@@ -1435,6 +1436,7 @@ partial class MainForm {
     pnlMain.Controls.Add(btnSaveProfilAs);
     pnlMain.Controls.Add(btnNewProfile);
     pnlMain.Controls.Add(btnSaveProfile);
+    pnlMain.Controls.Add(btnAndroidPackageSettings);
     pnlMain.Controls.Add(btnGenerateWix);
     pnlMain.Controls.Add(btnBuildMsi);
     pnlMain.Controls.Add(tabPreview);
@@ -1472,6 +1474,16 @@ partial class MainForm {
     txtLog.Size = new Size(883,180);
     txtLog.TabIndex = 109;
     txtLog.Text = "";
+    // 
+    // btnAndroidPackageSettings
+    // 
+    btnAndroidPackageSettings.Location = new Point(471,445);
+    btnAndroidPackageSettings.Name = "btnAndroidPackageSettings";
+    btnAndroidPackageSettings.Size = new Size(90,30);
+    btnAndroidPackageSettings.TabIndex = 19;
+    btnAndroidPackageSettings.Text = "APK setting...";
+    btnAndroidPackageSettings.UseVisualStyleBackColor = true;
+    btnAndroidPackageSettings.Click += btnAndroidPackageSettings_Click;
     // 
     // MainForm
     // 
@@ -1618,4 +1630,5 @@ partial class MainForm {
   private Button btnTestUploadConnection;
   private Button btnUploadNow;
   private RichTextBox txtLog;
+  private Button btnAndroidPackageSettings;
 }
