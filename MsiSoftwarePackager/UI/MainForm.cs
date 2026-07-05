@@ -3108,6 +3108,11 @@ public partial class MainForm: Form {
       : webApkPath + ".sha256.txt";
     string updateManifestPath = Path.Combine(webPublishProductDir,"update.json");
 
+    bool isAndroidOnly =
+    _profile.Android.PublishApk &&
+    !_profile.Bundle.BuildBundle &&
+    !_profile.WebInstaller.BuildWebInstaller;
+
     report.AppendLine("==================================================");
     report.AppendLine("Release Summary");
     report.AppendLine("==================================================");
@@ -3119,30 +3124,28 @@ public partial class MainForm: Form {
     report.AppendLine();
 
     report.AppendLine("Artifacts");
-    report.AppendLine("Executable   : " + GetArtifactStatus(executablePath,_profile.Signing.SignArtifacts && _profile.Signing.SignExecutable));
-    report.AppendLine("MSI          : " + GetArtifactStatus(msiPath,_profile.Signing.SignArtifacts && _profile.Signing.SignMsi));
+    if (!isAndroidOnly) {
+      report.AppendLine("Executable   : " + GetArtifactStatus(executablePath,_profile.Signing.SignArtifacts && _profile.Signing.SignExecutable));
+      report.AppendLine("MSI          : " + GetArtifactStatus(msiPath,_profile.Signing.SignArtifacts && _profile.Signing.SignMsi));
 
-    if (_profile.Bundle.BuildBundle) {
-      report.AppendLine("Bundle       : " + GetArtifactStatus(bundlePath,_profile.Signing.SignArtifacts && _profile.Signing.SignBundle));
+      if (_profile.Bundle.BuildBundle) {
+        report.AppendLine("Bundle       : " + GetArtifactStatus(bundlePath,_profile.Signing.SignArtifacts && _profile.Signing.SignBundle));
+      }
+      else {
+        report.AppendLine("Bundle       : disabled");
+      }
+
+      if (_profile.WebInstaller.BuildWebInstaller) {
+        report.AppendLine("WebSetup     : " + GetArtifactStatus(webSetupPath,_profile.Signing.SignArtifacts && _profile.Signing.SignWebSetup));
+      }
+      else {
+        report.AppendLine("WebSetup     : disabled");
+      }
     }
     else {
-      report.AppendLine("Bundle       : disabled");
-    }
-
-    if (_profile.WebInstaller.BuildWebInstaller) {
-      report.AppendLine("WebSetup     : " + GetArtifactStatus(webSetupPath,_profile.Signing.SignArtifacts && _profile.Signing.SignWebSetup));
-    }
-    else {
-      report.AppendLine("WebSetup     : disabled");
-    }
-
-    if (_profile.Android.PublishApk) {
       report.AppendLine("Android APK  : " + GetSimpleFileStatus(apkPath));
       report.AppendLine("APK web file : " + GetSimpleFileStatus(webApkPath));
       report.AppendLine("APK SHA256   : " + GetSimpleFileStatus(webApkSha256Path));
-    }
-    else {
-      report.AppendLine("Android APK  : disabled");
     }
 
     report.AppendLine("update.json  : " + (File.Exists(updateManifestPath) ? "OK" : "missing"));
@@ -3156,7 +3159,14 @@ public partial class MainForm: Form {
 
     report.AppendLine("URLs");
     report.AppendLine("Download URL : " + downloadPage);
-    report.AppendLine("MSI URL      : " + _profile.WebInstaller.MsiDownloadUrl);
+    if (!isAndroidOnly) {
+      report.AppendLine("MSI URL      : " + _profile.WebInstaller.MsiDownloadUrl);
+    }
+    else {
+      if (_profile.Android.PublishApk) {
+        report.AppendLine("APK URL      : " + BuildApkUrl());
+      }
+    }
 
     if (_profile.WebInstaller.BuildWebInstaller) {
       string webSetupUrl =
@@ -3174,25 +3184,22 @@ public partial class MainForm: Form {
     report.AppendLine();
 
     report.AppendLine("Output files");
-    report.AppendLine("Executable   : " + executablePath);
-    report.AppendLine("MSI          : " + msiPath);
+    if (!isAndroidOnly) {
+      report.AppendLine("Executable   : " + executablePath);
+      report.AppendLine("MSI          : " + msiPath);
 
-    if (_profile.Bundle.BuildBundle)
-      report.AppendLine("Bundle       : " + bundlePath);
+      if (_profile.Bundle.BuildBundle)
+        report.AppendLine("Bundle       : " + bundlePath);
 
-    if (_profile.WebInstaller.BuildWebInstaller)
-      report.AppendLine("WebSetup     : " + webSetupPath);
-
-    if (_profile.Android.PublishApk) {
-      report.AppendLine("APK URL      : " + BuildApkUrl());
+      if (_profile.WebInstaller.BuildWebInstaller)
+        report.AppendLine("WebSetup     : " + webSetupPath);
     }
-
-    if (_profile.Android.PublishApk) {
+    else {
       report.AppendLine("APK source   : " + apkPath);
       report.AppendLine("APK web      : " + webApkPath);
       report.AppendLine("APK SHA256   : " + webApkSha256Path);
-    }
 
+    }
     report.AppendLine("Web publish  : " + webPublishProductDir);
 
     return report.ToString();
