@@ -505,12 +505,24 @@ public partial class MainForm: Form {
     _profile.Signing.SslComTotpSecretCredentialTarget = sslComTotpSecretCredentialTarget;
   }
 
-  private void WriteUpdateManifest(string projectPublishDir) {
+  private object BuildUpdateManifest() {
     SyncUpdateManifestFromProfile();
+
+    if (_profile.Android.PublishApk &&
+        !_profile.WebInstaller.BuildWebInstaller &&
+        !_profile.Bundle.BuildBundle) {
+      return BuildAndroidUpdateManifest();
+    }
+
+    return _profile.UpdateManifest;
+  }
+
+  private void WriteUpdateManifest(string projectPublishDir) {
+    object manifest = BuildUpdateManifest();
 
     string json =
         JsonSerializer.Serialize(
-            _profile.UpdateManifest,
+            manifest,
             JsonIndentedOptions
         );
 
@@ -527,6 +539,40 @@ public partial class MainForm: Form {
     );
 
     AppendLog("[OK] Update manifest generated : " + manifestPath);
+  }
+
+  private object BuildAndroidUpdateManifest() {
+    string apkUrl = BuildApkUrl();
+
+    return new {
+      ProductName = _profile.Product.ProductName,
+      Version = _profile.Product.Version,
+      Publisher = _profile.Product.Manufacturer,
+      DownloadPage = BuildDownloadPageUrl(),
+      PrivacyPage = _profile.Product.PrivacyPageUrl,
+      ApkUrl = apkUrl,
+      UpdateManifestUrl = BuildUpdateManifestUrl(),
+      ReleaseDate = DateTime.Now.ToString("yyyy-MM-dd"),
+      ApplicationId = GetWebProductFolderName(),
+      TargetFramework = _profile.Android.TargetFramework
+    };
+  }
+
+  private string BuildApkUrl() {
+    if (!_profile.Android.PublishApk ||
+        string.IsNullOrWhiteSpace(_profile.Android.ApkFilePath))
+      return string.Empty;
+
+    string webRemoteSite =
+        _profile.Upload.WebRemoteSite.Trim().TrimEnd('/');
+
+    return webRemoteSite +
+        "/" +
+        Uri.EscapeDataString(WebCategoryFolderName) +
+        "/" +
+        Uri.EscapeDataString(GetWebProductFolderName()) +
+        "/" +
+        Uri.EscapeDataString(Path.GetFileName(_profile.Android.ApkFilePath));
   }
 
   private bool ValidateWebOnlyBeforeAction() {
@@ -4085,11 +4131,6 @@ public partial class MainForm: Form {
         service.Build(_profile,templateRoot);
       });
 
-      //if (_profile.Android.PublishApk) {
-      //  AndroidBuildService androidService = new();
-      //  androidService.BuildApk(_profile,AppendLog);
-      //}
-
       PrepareWebPublishFolder();
 
       RunWinScpUpload();
@@ -6597,6 +6638,30 @@ public partial class MainForm: Form {
 
       AutoSaveProfile();
       RefreshPreviewTabs();
+
+      string uploadMessage =
+        !_profile.Upload.UploadWebFilesAfterBuild
+        ? "Web upload was not requested."
+        : _lastUploadSuccess
+            ? "Web upload completed successfully."
+            : "Web upload was requested but did not complete successfully.";
+
+      MessageBox.Show(
+        this,
+        "Android APK build completed successfully." +
+        Environment.NewLine +
+        Environment.NewLine +
+        "APK file:" +
+        Environment.NewLine +
+        apkPath +
+        Environment.NewLine +
+        Environment.NewLine +
+        uploadMessage,
+        "Build APK",
+        MessageBoxButtons.OK,
+        MessageBoxIcon.Information
+      );
+
     }
     catch (Exception ex) {
       AppendLog("[ERROR] Android APK build failed : " + ex.Message);
