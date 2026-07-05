@@ -11,11 +11,8 @@ internal class AndroidBuildService {
     string projectFile = profile.TargetProject.ProjectFile;
     string projectDir = Path.GetDirectoryName(projectFile)!;
 
-    string storePassword =
-        WindowsCredentialManager.ReadPassword(profile.Android.KeystorePasswordCredentialTarget);
-
-    string keyPassword =
-        WindowsCredentialManager.ReadPassword(profile.Android.KeyPasswordCredentialTarget);
+    string storePassword = WindowsCredentialManager.ReadPassword(profile.Android.KeystorePasswordCredentialTarget);
+    string keyPassword = WindowsCredentialManager.ReadPassword(profile.Android.KeyPasswordCredentialTarget);
 
     if (string.IsNullOrWhiteSpace(storePassword))
       throw new InvalidOperationException("Android keystore password is empty.");
@@ -69,48 +66,24 @@ internal class AndroidBuildService {
 
     if (process.ExitCode != 0)
       throw new InvalidOperationException("Android APK publish failed. Exit code: " + process.ExitCode);
-
     string apkPath = FindGeneratedApk(projectDir,profile);
-
-    string apkFileName =
-        UpdateSettingsHelper.GetSafeFileName(profile.Product.ProductId) +
-        "_" +
-        profile.Product.Version +
-        ".apk";
-
-    string renamedApkPath =
-        Path.Combine(
-            Path.GetDirectoryName(apkPath)!,
-            apkFileName
-        );
-
+    string apkFileName = UpdateSettingsHelper.GetSafeFileName(profile.Product.ProductId) + "_" + profile.Product.Version + ".apk";
+    string renamedApkPath = Path.Combine(Path.GetDirectoryName(apkPath)!,apkFileName);
     File.Copy(apkPath,renamedApkPath,overwrite: true);
-
     profile.Android.ApkFilePath = renamedApkPath;
-
     log?.Invoke("[OK] Android APK renamed : " + renamedApkPath);
-
     return renamedApkPath;
   }
 
   private static string FindGeneratedApk(string projectDir,MsiPackageProfile profile) {
-    string outputDir = Path.Combine(
-        projectDir,
-        "bin",
-        profile.Android.Configuration,
-        profile.Android.TargetFramework
-    );
-
+    string outputDir = Path.Combine(projectDir,"bin",profile.Android.Configuration,profile.Android.TargetFramework);
     string publishDir = Path.Combine(outputDir,"publish");
-
     string[] apkFiles = Directory.Exists(publishDir)
         ? Directory.GetFiles(publishDir,"*.apk",SearchOption.TopDirectoryOnly)
         : [];
-
     if (apkFiles.Length == 0 && Directory.Exists(outputDir)) {
       apkFiles = Directory.GetFiles(outputDir,"*.apk",SearchOption.TopDirectoryOnly);
     }
-
     if (apkFiles.Length == 0)
       throw new FileNotFoundException("Generated APK was not found.",outputDir);
 

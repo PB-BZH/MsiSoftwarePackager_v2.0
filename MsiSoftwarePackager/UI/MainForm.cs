@@ -3083,15 +3083,10 @@ public partial class MainForm: Form {
     ApplyUiToProfile();
 
     StringBuilder report = new();
-
-    string productFolder =
-        GetWebProductFolderName();
-
-    string webRemoteSite =
-        _profile.Upload.WebRemoteSite
-            .Trim()
-            .TrimEnd('/');
-
+    string productFolder = GetWebProductFolderName();
+    string webRemoteSite = _profile.Upload.WebRemoteSite
+      .Trim()
+      .TrimEnd('/');
     string downloadPage =
         webRemoteSite +
         "/download.php?category=" +
@@ -3099,42 +3094,19 @@ public partial class MainForm: Form {
         "&product=" +
         Uri.EscapeDataString(productFolder);
 
-    string executablePath =
-    Path.Combine(
-        _profile.Publish.PublishDirectory,
-        _profile.TargetProject.ExecutableName
-    );
-
-    string msiPath =
-        Path.Combine(
-            _profile.Output.MsiOutputDirectory,
-            _profile.Output.MsiFileName
-        );
-
-    string bundlePath =
-        Path.Combine(
-            _profile.Bundle.BundleOutputDirectory,
-            _profile.Bundle.BundleFileName
-        );
-
-    string webSetupPath =
-        Path.Combine(
-            _profile.WebInstaller.WebOutputDirectory,
-            _profile.WebInstaller.WebSetupFileName
-        );
-
-    string webPublishProductDir =
-        Path.Combine(
-            _profile.WebInstaller.WebPublishDirectory,
-            WebCategoryFolderName,
-            productFolder
-        );
-
-    string updateManifestPath =
-        Path.Combine(
-            webPublishProductDir,
-            "update.json"
-        );
+    string executablePath = Path.Combine(_profile.Publish.PublishDirectory,_profile.TargetProject.ExecutableName);
+    string msiPath = Path.Combine(_profile.Output.MsiOutputDirectory,_profile.Output.MsiFileName);
+    string bundlePath = Path.Combine(_profile.Bundle.BundleOutputDirectory,_profile.Bundle.BundleFileName);
+    string webSetupPath = Path.Combine(_profile.WebInstaller.WebOutputDirectory,_profile.WebInstaller.WebSetupFileName);
+    string apkPath = _profile.Android.ApkFilePath;
+    string webPublishProductDir = Path.Combine(_profile.WebInstaller.WebPublishDirectory,WebCategoryFolderName,productFolder);
+    string webApkPath = string.IsNullOrWhiteSpace(apkPath)
+      ? string.Empty
+      : Path.Combine(webPublishProductDir,Path.GetFileName(apkPath));
+    string webApkSha256Path = string.IsNullOrWhiteSpace(webApkPath)
+      ? string.Empty
+      : webApkPath + ".sha256.txt";
+    string updateManifestPath = Path.Combine(webPublishProductDir,"update.json");
 
     report.AppendLine("==================================================");
     report.AppendLine("Release Summary");
@@ -3162,6 +3134,15 @@ public partial class MainForm: Form {
     }
     else {
       report.AppendLine("WebSetup     : disabled");
+    }
+
+    if (_profile.Android.PublishApk) {
+      report.AppendLine("Android APK  : " + GetSimpleFileStatus(apkPath));
+      report.AppendLine("APK web file : " + GetSimpleFileStatus(webApkPath));
+      report.AppendLine("APK SHA256   : " + GetSimpleFileStatus(webApkSha256Path));
+    }
+    else {
+      report.AppendLine("Android APK  : disabled");
     }
 
     report.AppendLine("update.json  : " + (File.Exists(updateManifestPath) ? "OK" : "missing"));
@@ -3202,9 +3183,28 @@ public partial class MainForm: Form {
     if (_profile.WebInstaller.BuildWebInstaller)
       report.AppendLine("WebSetup     : " + webSetupPath);
 
+    if (_profile.Android.PublishApk) {
+      report.AppendLine("APK URL      : " + BuildApkUrl());
+    }
+
+    if (_profile.Android.PublishApk) {
+      report.AppendLine("APK source   : " + apkPath);
+      report.AppendLine("APK web      : " + webApkPath);
+      report.AppendLine("APK SHA256   : " + webApkSha256Path);
+    }
+
     report.AppendLine("Web publish  : " + webPublishProductDir);
 
     return report.ToString();
+  }
+
+  private static string GetSimpleFileStatus(string filePath) {
+    if (string.IsNullOrWhiteSpace(filePath))
+      return "not configured";
+
+    return File.Exists(filePath)
+        ? "OK"
+        : "missing";
   }
 
   private string GetArtifactStatus(
