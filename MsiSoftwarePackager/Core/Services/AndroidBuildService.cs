@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text;
 using MsiSoftwarePackager.Core.Models;
+using PB.BZH.Help.Library.Core.Services;
 
 namespace MsiSoftwarePackager.Core.Services;
 
@@ -71,11 +72,25 @@ internal class AndroidBuildService {
 
     string apkPath = FindGeneratedApk(projectDir,profile);
 
-    profile.Android.ApkFilePath = apkPath;
+    string apkFileName =
+        UpdateSettingsHelper.GetSafeFileName(profile.Product.ProductId) +
+        "_" +
+        profile.Product.Version +
+        ".apk";
 
-    log?.Invoke("[OK] Android APK generated : " + apkPath);
+    string renamedApkPath =
+        Path.Combine(
+            Path.GetDirectoryName(apkPath)!,
+            apkFileName
+        );
 
-    return apkPath;
+    File.Copy(apkPath,renamedApkPath,overwrite: true);
+
+    profile.Android.ApkFilePath = renamedApkPath;
+
+    log?.Invoke("[OK] Android APK renamed : " + renamedApkPath);
+
+    return renamedApkPath;
   }
 
   private static string FindGeneratedApk(string projectDir,MsiPackageProfile profile) {
