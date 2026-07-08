@@ -4316,15 +4316,15 @@ public partial class MainForm: Form {
         {
             WebBundleName = "NewProduct",
             WebSetupFileName = "NewProductWebSetup.exe",
-            WebPublishDirectory = @"C:\wamp64\www\softwares-site\public\softwares"
+            WebPublishDirectory = @"C:\wamp64\www\pb-bzh-concept.fr\public\softwares"
         },
 
       Upload =
         {
             Protocol = "SFTP",
-            LocalDirectory = @"C:\wamp64\www\softwares-site",
+            LocalDirectory = @"C:\wamp64\www\pb-bzh-concept.fr",
             RemoteDirectory = "/",
-            WebRemoteSite = "https://softwares.pb-bzh-concept.fr/softwares/",
+            WebRemoteSite = "https://www.pb-bzh-concept.fr/softwares/",
             WinScpPath = @"C:\Program Files (x86)\WinSCP\WinSCP.com"
         }
     };

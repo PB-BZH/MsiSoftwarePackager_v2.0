@@ -43,9 +43,9 @@ public sealed class UploadOptions {
   public string Host { get; set; } = "access-5020244126.webspace-host.com";
   public string UserName { get; set; } = "su185260";
   public string RemoteDirectory { get; set; } = "/";
-  public string LocalDirectory { get; set; } = @"C:\wamp64\www\softwares-site";
+  public string LocalDirectory { get; set; } = @"C:\wamp64\www\pb-bzh-concept.fr";
   public string WinScpPath { get; set; } = @"C:\Program Files (x86)\WinSCP\WinSCP.com";
-  public string WebRemoteSite { get; set; } = "https://softwares.pb-bzh-concept.fr/softwares/";
+  public string WebRemoteSite { get; set; } = "https://www.pb-bzh-concept.fr/";
   public string Password { get; set; } = "";
   public string CredentialTarget { get; set; } = "";
 }
@@ -61,8 +61,8 @@ public sealed class ProductOptions {
   public string IconPath { get; set; } = "";
   [JsonIgnore]
   public Image? LogoImage { get; set; } = Properties.Resources.Application;
-  public string DownloadPageUrl { get; set; } = "https://softwares.pb-bzh-concept.fr";
-  public string PrivacyPageUrl { get; set; } = "https://softwares.pb-bzh-concept.fr/privacy.php";
+  public string DownloadPageUrl { get; set; } = "https://www.pb-bzh-concept.fr";
+  public string PrivacyPageUrl { get; set; } = "https://www.pb-bzh-concept.fr/privacy.php";
   public string Copyright { get; set; } = "© Copyright PB BZH Concept 2026";
   public string EmailContact { get; set; } = "admin@pb-bzh-concept.fr";
 }
@@ -117,7 +117,7 @@ public sealed class WebInstallerOptions {
   public string MsiDownloadUrl { get; set; } = "";
   public string WebBundleUpgradeCode { get; set; } = "";
   public bool PrepareWebPublishFolder { get; set; } = true;
-  public string WebPublishDirectory { get; set; } = @"C:\wamp64\www\msi-software-packager\";
+  public string WebPublishDirectory { get; set; } = @"C:\wamp64\www\pb-bzh-concept.fr\";
   public string WebProductFolder { get; set; } = "";
 }
 
@@ -134,8 +134,8 @@ public sealed class UpdateManifest {
   public string ProductName { get; set; } = "Msi Software Packager";
   public string Version { get; set; } = "";
   public string Publisher { get; set; } = "";
-  public string DownloadPage { get; set; } = "https://softwares.pb-bzh-concept.fr";
-  public string PrivacyPage { get; set; } = "https://softwares.pb-bzh-concept.fr/privacy.php";
+  public string DownloadPage { get; set; } = "https://www.pb-bzh-concept.fr";
+  public string PrivacyPage { get; set; } = "https://www.pb-bzh-concept.fr/softwares/privacy.php";
   public string MsiUrl { get; set; } = "";
   public string WebSetupUrl { get; set; } = "";
   public string UpdateManifestUrl { get; set; } = "";
@@ -176,8 +176,8 @@ public sealed class GlobalUploadSettings {
   public string Host { get; set; } = "access-5020244126.webspace-host.com";
   public string UserName { get; set; } = "su185260";
   public string RemoteDirectory { get; set; } = "/";
-  public string LocalDirectory { get; set; } = @"C:\wamp64\www\softwares-site";
-  public string WebRemoteSite { get; set; } = "https://softwares.pb-bzh-concept.fr/softwares/";
+  public string LocalDirectory { get; set; } = @"C:\wamp64\www\pb-bzh-concept.fr\";
+  public string WebRemoteSite { get; set; } = "https://www.pb-bzh-concept.fr/softwares/";
   public string CredentialTarget { get; set; } = string.Empty;
 }
 

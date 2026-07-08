@@ -12,10 +12,10 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Product>Msi Software Packager</Product>
     <Company>PB BZH Concept</Company>
-    <Version>3.2.6</Version>
-    <AssemblyVersion>3.2.6.0</AssemblyVersion>
-    <FileVersion>3.2.6.0</FileVersion>
-    <InformationalVersion>3.2.6</InformationalVersion>
+    <Version>3.2.5</Version>
+    <AssemblyVersion>3.2.5.0</AssemblyVersion>
+    <FileVersion>3.2.5.0</FileVersion>
+    <InformationalVersion>3.2.5</InformationalVersion>
     <Copyright>Copyright © 2026 PB BZH Concept</Copyright>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <Platforms>AnyCPU;x64</Platforms>
@@ -24,7 +24,7 @@
     <ProductFolder>MsiSoftwarePackager</ProductFolder>
     <UpgradeCode>9359A612-5DAC-4194-AA39-870EE7BB8270</UpgradeCode>
     <BundleUpgradeCode>D5D70885-F550-4BA8-AF94-062D0008B1E9</BundleUpgradeCode>
-    <WebBundleUPgradeCode>EC08B5F9-28B5-418D-B8E2-7B64203BC821</WebBundleUPgradeCode>
+    <WebBundleUPgradeCode>AFD5981A-1A95-4C55-AED5-64EB837666A1</WebBundleUPgradeCode>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="Ressources\Application.ico" />

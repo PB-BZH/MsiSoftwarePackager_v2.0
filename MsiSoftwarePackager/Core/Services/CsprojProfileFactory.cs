@@ -125,14 +125,14 @@ public static class CsprojProfileFactory {
     profile.WebInstaller.WebSetupFileName = safeName + "WebSetup.exe";
     profile.WebInstaller.WebBundleUpgradeCode = webBundleUpgradeCode;
     profile.WebInstaller.PrepareWebPublishFolder = true;
-    profile.WebInstaller.WebPublishDirectory = @"C:\wamp64\www\softwares-site\public\softwares";
+    profile.WebInstaller.WebPublishDirectory = @"C:\wamp64\www\pb-bzh-concept.fr\public\softwares";
 
     profile.Upload.UploadWebFilesAfterBuild = true;
     profile.Upload.Protocol = "SFTP";
     profile.Upload.Host = "access-5020244126.webspace-host.com";
     profile.Upload.UserName = "su185260";
     profile.Upload.RemoteDirectory = "/";
-    profile.Upload.LocalDirectory = @"C:\wamp64\www\softwares-site";
+    profile.Upload.LocalDirectory = @"C:\wamp64\www\pb-bzh-concept.fr";
     profile.Upload.WinScpPath = @"C:\Program Files (x86)\WinSCP\WinSCP.com";
     profile.Upload.WebRemoteSite = "https://softwares.pb-bzh-concept.fr/softwares/";
     profile.Upload.Password = "";
