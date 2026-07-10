@@ -517,19 +517,86 @@ public partial class MainForm: Form {
     return _profile.UpdateManifest;
   }
 
-  private void WriteUpdateManifest(string projectPublishDir) {
-    object manifest = BuildUpdateManifest();
+  private string BuildPublicArtifactUrl(string artifactFileName) {
+    if (string.IsNullOrWhiteSpace(artifactFileName)) {
+      throw new InvalidOperationException("Artifact file name is empty.");
+    }
 
-    string json =
-        JsonSerializer.Serialize(
-            manifest,
-            JsonIndentedOptions
-        );
+    string webRemoteSite =
+        _profile.Upload.WebRemoteSite;
+
+    if (string.IsNullOrWhiteSpace(webRemoteSite)) {
+      throw new InvalidOperationException("Web remote site is empty.");
+    }
+
+    string productFolder =
+        GetWebProductFolderName();
+
+    return
+        webRemoteSite.TrimEnd('/') +
+        "/msi-software-packager/" +
+        Uri.EscapeDataString(productFolder) +
+        "/" +
+        Uri.EscapeDataString(artifactFileName);
+  }
+
+  private void WriteUpdateManifest(string projectPublishDir) {
+    if (string.IsNullOrWhiteSpace(projectPublishDir)) {
+      throw new InvalidOperationException("Project publish directory is empty.");
+    }
+
+    Directory.CreateDirectory(projectPublishDir);
+
+    string artifactFileName;
+    string artifactType;
+
+    if (_profile.Android.PublishApk) {
+      artifactFileName =
+          Path.GetFileName(_profile.Android.ApkFilePath);
+
+      artifactType = "apk";
+    }
+    else {
+      artifactFileName =
+          _profile.Output.MsiFileName;
+
+      artifactType = "msi";
+    }
+
+    if (string.IsNullOrWhiteSpace(artifactFileName)) {
+      throw new InvalidOperationException("Update manifest artifact file name is empty.");
+    }
+
+    string artifactUrl =
+        BuildPublicArtifactUrl(artifactFileName);
 
     string manifestPath =
         Path.Combine(
             projectPublishDir,
             "update.json"
+        );
+
+    var manifest = new {
+      applicationId = _profile.UpdateManifest.ApplicationId,
+      productName = _profile.Product.ProductName,
+      version = _profile.Product.Version,
+      type = artifactType,
+      fileName = artifactFileName,
+
+      url = artifactUrl,
+      downloadUrl = artifactUrl,
+      artifactUrl = artifactUrl,
+
+      sha256Url = artifactUrl + ".sha256.txt",
+      publishedAtUtc = DateTime.UtcNow.ToString("O")
+    };
+
+    string json =
+        JsonSerializer.Serialize(
+            manifest,
+            new JsonSerializerOptions {
+              WriteIndented = true
+            }
         );
 
     File.WriteAllText(
@@ -538,8 +605,33 @@ public partial class MainForm: Form {
         EncodingHelper.Utf8NoBom
     );
 
-    AppendLog("[OK] Update manifest generated : " + manifestPath);
+    AppendLog("[OK] update.json generated : " + manifestPath);
+    AppendLog("[INFO] update.json artifact URL : " + artifactUrl);
   }
+
+  //private void WriteUpdateManifest(string projectPublishDir) {
+  //  object manifest = BuildUpdateManifest();
+
+  //  string json =
+  //      JsonSerializer.Serialize(
+  //          manifest,
+  //          JsonIndentedOptions
+  //      );
+
+  //  string manifestPath =
+  //      Path.Combine(
+  //          projectPublishDir,
+  //          "update.json"
+  //      );
+
+  //  File.WriteAllText(
+  //      manifestPath,
+  //      json,
+  //      EncodingHelper.Utf8NoBom
+  //  );
+
+  //  AppendLog("[OK] Update manifest generated : " + manifestPath);
+  //}
 
   private object BuildAndroidUpdateManifest() {
     string apkUrl = BuildApkUrl();
@@ -1833,57 +1925,6 @@ public partial class MainForm: Form {
     }
 
     AppendLog("[OK] Web publish directory cleaned.");
-  }
-
-  private void CopyArtifactAndSha256ToWebPublish(
-    string sourceFilePath,
-    string destinationFilePath) {
-
-    if (string.IsNullOrWhiteSpace(sourceFilePath)) {
-      throw new InvalidOperationException("Source file path is empty.");
-    }
-
-    if (string.IsNullOrWhiteSpace(destinationFilePath)) {
-      throw new InvalidOperationException("Destination file path is empty.");
-    }
-
-    if (!File.Exists(sourceFilePath)) {
-      throw new FileNotFoundException(
-          "Source artifact was not found.",
-          sourceFilePath);
-    }
-
-    string? destinationDirectory =
-        Path.GetDirectoryName(destinationFilePath);
-
-    if (!string.IsNullOrWhiteSpace(destinationDirectory)) {
-      Directory.CreateDirectory(destinationDirectory);
-    }
-
-    File.Copy(
-        sourceFilePath,
-        destinationFilePath,
-        overwrite: true);
-
-    AppendLog("[OK] Artifact copied : " + destinationFilePath);
-
-    string sourceSha256Path =
-        sourceFilePath + ".sha256.txt";
-
-    if (!File.Exists(sourceSha256Path)) {
-      AppendLog("[WARN] SHA256 sidecar file not found : " + sourceSha256Path);
-      return;
-    }
-
-    string destinationSha256Path =
-        destinationFilePath + ".sha256.txt";
-
-    File.Copy(
-        sourceSha256Path,
-        destinationSha256Path,
-        overwrite: true);
-
-    AppendLog("[OK] SHA256 copied : " + destinationSha256Path);
   }
 
   private void PrepareWebPublishFolder() {
