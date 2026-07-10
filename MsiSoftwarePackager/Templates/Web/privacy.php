@@ -14,9 +14,9 @@ $lastUpdate = '11 juin 2026';
     <meta name="description" content="Politique de confidentialité du site de téléchargement de logiciels PB BZH Concept.">
     <meta name="robots" content="index,follow">
     
-    <link rel="icon" href="/softwares/assets/pb-bzh-logo.png" type="image/png">
-    <link rel="shortcut icon" href="/softwares/assets/pb-bzh-logo.png" type="image/png">
-    <link rel="apple-touch-icon" href="/softwares/assets/pb-bzh-logo.png">
+    <link rel="icon" href="https://www.pb-bzh-concept.fr/softwares/assets/pb-bzh-logo.png" type="image/png">
+    <link rel="shortcut icon" href="https://www.pb-bzh-concept.fr/softwares/assets/pb-bzh-logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://www.pb-bzh-concept.fr/softwares/assets/pb-bzh-logo.png">
 
   <style>
     :root {
@@ -197,13 +197,13 @@ $lastUpdate = '11 juin 2026';
 
     <div class="notice">
       Cette page explique de manière simple quelles données peuvent être traitées lors de l’utilisation
-      du site <strong>softwares.pb-bzh-concept.fr</strong> et des logiciels proposés au téléchargement.
+      du site <strong>www.pb-bzh-concept.fr/softwares/</strong> et des logiciels proposés au téléchargement.
     </div>
 
     <h2>1. Éditeur du site</h2>
 
     <p>
-      Le site <strong>softwares.pb-bzh-concept.fr</strong> est édité par <strong>PB BZH Concept</strong>.
+      Le site <strong>www.pb-bzh-concept.fr/softwares/</strong> est édité par <strong>PB BZH Concept</strong>.
     </p>
 
     <p>

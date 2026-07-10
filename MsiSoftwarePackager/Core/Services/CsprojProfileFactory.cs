@@ -134,7 +134,7 @@ public static class CsprojProfileFactory {
     profile.Upload.RemoteDirectory = "/";
     profile.Upload.LocalDirectory = @"C:\wamp64\www\pb-bzh-concept.fr";
     profile.Upload.WinScpPath = @"C:\Program Files (x86)\WinSCP\WinSCP.com";
-    profile.Upload.WebRemoteSite = "https://softwares.pb-bzh-concept.fr/softwares/";
+    profile.Upload.WebRemoteSite = "https://www.pb-bzh-concept.fr/softwares/";
     profile.Upload.Password = "";
     return profile;
   }

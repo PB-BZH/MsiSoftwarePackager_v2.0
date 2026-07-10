@@ -67,6 +67,7 @@ public sealed class MsiBuildService {
     );
 
     ValidateGeneratedMsi(profile);
+    WriteSha256SidecarFile(GetMsiPath(profile));
 
     if (profile.Bundle.BuildBundle) {
       BuildBundle(profile);
@@ -83,6 +84,7 @@ public sealed class MsiBuildService {
       );
 
       ValidateGeneratedBundle(profile);
+      WriteSha256SidecarFile(GetBundlePath(profile));
     }
 
     if (profile.WebInstaller.BuildWebInstaller) {
@@ -99,6 +101,7 @@ public sealed class MsiBuildService {
           )
       );
       ValidateGeneratedWebInstaller(profile);
+      WriteSha256SidecarFile(GetWebInstallerPath(profile));
     }
 
     Log("=== MSI BUILD SUCCESS ===");
@@ -759,6 +762,36 @@ public sealed class MsiBuildService {
     }
 
     return "wix";
+  }
+
+  private static string WriteSha256SidecarFile(string filePath) {
+    if (!File.Exists(filePath)) {
+      throw new FileNotFoundException(
+          "Cannot generate SHA256 because file does not exist.",
+          filePath);
+    }
+
+    using FileStream stream = File.OpenRead(filePath);
+    byte[] hashBytes = System.Security.Cryptography.SHA256.HashData(stream);
+
+    string hash =
+        Convert.ToHexString(hashBytes);
+
+    string shaPath =
+        filePath + ".sha256.txt";
+
+    string content =
+        hash +
+        "  " +
+        Path.GetFileName(filePath) +
+        Environment.NewLine;
+
+    File.WriteAllText(
+        shaPath,
+        content,
+        new System.Text.UTF8Encoding(false));
+
+    return shaPath;
   }
 
   private void BuildMsi(MsiPackageProfile profile) {

@@ -1835,6 +1835,57 @@ public partial class MainForm: Form {
     AppendLog("[OK] Web publish directory cleaned.");
   }
 
+  private void CopyArtifactAndSha256ToWebPublish(
+    string sourceFilePath,
+    string destinationFilePath) {
+
+    if (string.IsNullOrWhiteSpace(sourceFilePath)) {
+      throw new InvalidOperationException("Source file path is empty.");
+    }
+
+    if (string.IsNullOrWhiteSpace(destinationFilePath)) {
+      throw new InvalidOperationException("Destination file path is empty.");
+    }
+
+    if (!File.Exists(sourceFilePath)) {
+      throw new FileNotFoundException(
+          "Source artifact was not found.",
+          sourceFilePath);
+    }
+
+    string? destinationDirectory =
+        Path.GetDirectoryName(destinationFilePath);
+
+    if (!string.IsNullOrWhiteSpace(destinationDirectory)) {
+      Directory.CreateDirectory(destinationDirectory);
+    }
+
+    File.Copy(
+        sourceFilePath,
+        destinationFilePath,
+        overwrite: true);
+
+    AppendLog("[OK] Artifact copied : " + destinationFilePath);
+
+    string sourceSha256Path =
+        sourceFilePath + ".sha256.txt";
+
+    if (!File.Exists(sourceSha256Path)) {
+      AppendLog("[WARN] SHA256 sidecar file not found : " + sourceSha256Path);
+      return;
+    }
+
+    string destinationSha256Path =
+        destinationFilePath + ".sha256.txt";
+
+    File.Copy(
+        sourceSha256Path,
+        destinationSha256Path,
+        overwrite: true);
+
+    AppendLog("[OK] SHA256 copied : " + destinationSha256Path);
+  }
+
   private void PrepareWebPublishFolder() {
     if (!_profile.WebInstaller.BuildWebInstaller &&
         !_profile.Android.PublishApk)
@@ -1843,7 +1894,52 @@ public partial class MainForm: Form {
     if (!_profile.WebInstaller.PrepareWebPublishFolder)
       return;
 
+    void CopyArtifactToWebPublishWithSha256(
+        string sourcePath,
+        string targetDirectory,
+        string artifactLabel) {
+
+      if (string.IsNullOrWhiteSpace(sourcePath)) {
+        AppendLog("[WARN] " + artifactLabel + " path is empty for web publish.");
+        return;
+      }
+
+      if (!File.Exists(sourcePath)) {
+        AppendLog("[WARN] " + artifactLabel + " file not found for web publish : " + sourcePath);
+        return;
+      }
+
+      Directory.CreateDirectory(targetDirectory);
+
+      string targetPath =
+          Path.Combine(
+              targetDirectory,
+              Path.GetFileName(sourcePath)
+          );
+
+      File.Copy(
+          sourcePath,
+          targetPath,
+          overwrite: true
+      );
+
+      AppendLog("[OK] " + artifactLabel + " copied to web project folder : " + targetPath);
+
+      WriteSha256File(targetPath);
+
+      string targetSha256Path =
+          targetPath + ".sha256.txt";
+
+      if (File.Exists(targetSha256Path)) {
+        AppendLog("[OK] " + artifactLabel + " SHA256 generated : " + targetSha256Path);
+      }
+      else {
+        AppendLog("[WARN] " + artifactLabel + " SHA256 file was not generated : " + targetSha256Path);
+      }
+    }
+
     CleanWebPublishDirectory();
+
     string publishRoot =
         Path.GetFullPath(_profile.WebInstaller.WebPublishDirectory);
 
@@ -1934,58 +2030,34 @@ public partial class MainForm: Form {
     EnsureDefaultWebAssets(targetAssetsDir);
 
     // ==================================================
-    // Copy package files
+    // Copy package files + SHA256
     // ==================================================
 
-    if (File.Exists(msiPath)) {
-      File.Copy(
+    if (!_profile.Android.PublishApk) {
+      CopyArtifactToWebPublishWithSha256(
           msiPath,
-          Path.Combine(
-              projectPublishDir,
-              Path.GetFileName(msiPath)
-          ),
-          overwrite: true
+          projectPublishDir,
+          "MSI"
       );
 
-      AppendLog("[OK] MSI copied to web project folder : " + msiPath);
-    }
-    else {
-      AppendLog("[WARN] MSI file not found for web publish : " + msiPath);
-    }
-
-    if (File.Exists(webSetupPath)) {
-      File.Copy(
-          webSetupPath,
-          Path.Combine(
-              projectPublishDir,
-              Path.GetFileName(webSetupPath)
-          ),
-          overwrite: true
-      );
-
-      AppendLog("[OK] Web setup copied to web project folder : " + webSetupPath);
-    }
-    else {
-      AppendLog("[WARN] Web setup file not found for web publish : " + webSetupPath);
+      if (_profile.WebInstaller.BuildWebInstaller) {
+        CopyArtifactToWebPublishWithSha256(
+            webSetupPath,
+            projectPublishDir,
+            "Web setup"
+        );
+      }
     }
 
     if (_profile.Android.PublishApk) {
-      string apkPath = _profile.Android.ApkFilePath;
+      string apkPath =
+          _profile.Android.ApkFilePath;
 
-      if (File.Exists(apkPath)) {
-        string targetApkPath = Path.Combine(
-            projectPublishDir,
-            Path.GetFileName(apkPath)
-        );
-
-        File.Copy(apkPath,targetApkPath,overwrite: true);
-        WriteSha256File(targetApkPath);
-
-        AppendLog("[OK] APK copied to web project folder : " + targetApkPath);
-      }
-      else {
-        AppendLog("[WARN] APK file not found for web publish : " + apkPath);
-      }
+      CopyArtifactToWebPublishWithSha256(
+          apkPath,
+          projectPublishDir,
+          "APK"
+      );
     }
 
     // ==================================================
